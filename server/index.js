@@ -6,15 +6,15 @@ const { getConf, getBuilds } = require("./api");
 
 getConf().then(async () => {
   const update = async () => {
-    console.log("try update builds, state: ", state);
+    console.log("try update builds");
 
     if (state.conf.repoName === null) return;
 
     const { full, short } = await getBuilds();
 
-    console.log("update builds: ", short.data);
+    console.log("update builds: ", short.data || []);
 
-    await state.updateBuilds(short.data);
+    await state.updateBuilds(short.data || []);
 
     setTimeout(update, 30000);
   };
@@ -36,8 +36,6 @@ getConf().then(async () => {
   });
 
   app.post("/notify-build-result", async (req, res) => {
-    // TODO:
-    // remove buildId from request body from agent
     const { buildId, success, buildLog } = req.body;
 
     await state.finishBuildOnAgent(buildId, success, buildLog);

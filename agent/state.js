@@ -2,7 +2,7 @@ const path = require("path");
 const util = require("util");
 const { exec } = require("child_process");
 const execPromisified = util.promisify(exec);
-const axios = require("axios").default;
+const axios = require("axios");
 const config = require("./agent-conf.json");
 
 class State {
@@ -21,7 +21,6 @@ class State {
     this.sendBuildOnServer = this.sendBuildOnServer.bind(this);
   }
 
-  // TODO: maybe убрать buildId
   async startBuild(buildId, repoName, commitHash, buildCommand) {
     // 1. создать папку для хранения репозитория, если она ещё не создана
     // 2. очистить папку с репой
@@ -31,6 +30,7 @@ class State {
     const pathToRepo = path.resolve(
       __dirname,
       "localRepo",
+      `${config.port}`,
       repoName.split("/")[1]
     );
 
@@ -39,7 +39,7 @@ class State {
       success = true;
     try {
       await execPromisified(
-        `mkdir -p localRepo && cd ${this.pathToLocalRepo} && mkdir -p test-folder && rm -r ${this.pathToLocalRepo}/* && git clone https://github.com/${repoName}.git`
+        `mkdir -p localRepo && cd ${this.pathToLocalRepo} && mkdir -p test-folder && rm -r ${this.pathToLocalRepo}/* && mkdir -p ${config.port} && cd ${config.port} && git clone https://github.com/${repoName}.git`
       );
     } catch (error) {
       success = false;
@@ -70,15 +70,13 @@ class State {
 
     const buildLog = `${allOut} ${allErr}`;
 
-    // TODO: maybe убрать buildId
     this.buildId = buildId;
     this.success = success;
     this.buildLog = buildLog;
 
-    await sendBuildOnServer();
+    await this.sendBuildOnServer();
   }
 
-  // TODO: maybe убрать buildId
   async sendBuildOnServer() {
     console.log("try to send build data on build server...");
 
@@ -95,11 +93,9 @@ class State {
       console.log("success send data!");
     } catch (error) {
       console.error(error);
-      setTimeout(sendBuildOnServer, 10000);
+      setTimeout(this.sendBuildOnServer, 10000);
     }
   }
 }
-
-// module.exports = new State();
 
 global.state = new State();

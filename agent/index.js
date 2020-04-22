@@ -1,6 +1,6 @@
 const cors = require("cors");
 const express = require("express");
-const axios = require("axios").default;
+const axios = require("axios");
 require("./state");
 const config = require("./agent-conf.json");
 
@@ -36,10 +36,8 @@ app.post("/build", async (req, res) => {
     return;
   }
 
-  // TODO: maybe убрать buildId
   const { buildId, repoName, commitHash, buildCommand } = req.body;
 
-  // TODO: maybe убрать buildId
   await state.startBuild(buildId, repoName, commitHash, buildCommand);
 
   res.end("");

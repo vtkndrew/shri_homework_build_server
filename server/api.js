@@ -1,6 +1,6 @@
 const querystring = require("querystring");
 const https = require("https");
-const axios = require("axios").default;
+const axios = require("axios");
 const config = require("./server-conf.json");
 require("./state");
 const { axiosGet, axiosPost } = require("./utils");
@@ -46,17 +46,16 @@ const startBuild = async (agent, params) => {
   console.log("start build. url: ", agent.url, "params: ", params);
 
   console.log("set build status 'In Progress' in db");
-  await axiosPost("/build/start", {
+  await axiosPost(api, "/build/start", {
     buildId: params.buildId,
     dateTime: agent.start.toISOString(),
   });
 
   try {
-    // TODO: maybe убрать buildId
     const response = await axios.post(`${agent.url}/build`, params);
     console.log("answer from build agent on start build: ", response);
   } catch (error) {
-    console.error(error);
+    console.error("wuuuut", error);
   }
 };
 
@@ -64,8 +63,8 @@ const finishBuild = async ({ buildId, start, success, buildLog }) => {
   const end = new Date();
   const duration = Math.round((end.getTime() - start.getTime()) / 1000);
 
-  console.log(`set build status: ${status}, for buildId: ${buildId}`);
-  await axiosPost("/build/finish", {
+  console.log(`set build status: ${success}, for buildId: ${buildId}`);
+  await axiosPost(api, "/build/finish", {
     buildId,
     duration,
     success,

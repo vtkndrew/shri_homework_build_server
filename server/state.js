@@ -59,8 +59,6 @@ class State {
   getAgentByBuildId(buildId, agents = this.agents) {
     return agents.find((agentObj) => agentObj.buildId === buildId);
   }
-  // TODO:
-  // getAgentByUrl MAYBE
 
   setAgentFree(agent) {
     agent.status = status.FREE;
@@ -121,7 +119,5 @@ class State {
     this.setAgentFree(agent);
   }
 }
-
-// module.exports = new State();
 
 global.state = new State();
