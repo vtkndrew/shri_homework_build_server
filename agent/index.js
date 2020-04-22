@@ -1,27 +1,27 @@
 const cors = require("cors");
 const express = require("express");
 const axios = require("axios").default;
-const state = require("./state");
+require("./state");
 const config = require("./agent-conf.json");
 
 const registerOnServer = async () => {
   console.log("try to register on build server...");
 
-  const { full, short } = await axios.post(
-    `http://${config.serverHost}:${config.serverPort}/notify-agent`,
-    {
-      host: "http://localhost",
-      port: config.port,
-    }
-  );
+  try {
+    await axios.post(
+      `http://${config.serverHost}:${config.serverPort}/notify-agent`,
+      {
+        host: "http://localhost",
+        port: config.port,
+      }
+    );
 
-  if (full.status !== 200) {
+    console.log("register on build server");
+    state.isRegistered = true;
+  } catch (error) {
+    console.error("error register on build server");
     setTimeout(registerOnServer, 10000);
-    return;
   }
-
-  console.log("register on build server");
-  state.isRegistered = true;
 };
 
 const app = express();

@@ -16,6 +16,7 @@ class State {
   }
 
   addBindings() {
+    this.setConf = this.setConf.bind(this);
     this.registerAgent = this.registerAgent.bind(this);
     this.getFreeAgents = this.getFreeAgents.bind(this);
     this.getBusyAgents = this.getBusyAgents.bind(this);
@@ -26,6 +27,13 @@ class State {
     this.searchAgent = this.searchAgent.bind(this);
     this.assignBuildToAgent = this.assignBuildToAgent.bind(this);
     this.finishBuildOnAgent = this.finishBuildOnAgent.bind(this);
+  }
+
+  setConf({ repoName, buildCommand, mainBranch, period }) {
+    this.conf.repoName = repoName;
+    this.conf.buildCommand = buildCommand;
+    this.conf.mainBranch = mainBranch;
+    this.conf.period = period;
   }
 
   registerAgent({ host, port }) {
@@ -114,4 +122,6 @@ class State {
   }
 }
 
-module.exports = new State();
+// module.exports = new State();
+
+global.state = new State();

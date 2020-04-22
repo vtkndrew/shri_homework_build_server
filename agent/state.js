@@ -7,6 +7,9 @@ const config = require("./agent-conf.json");
 
 class State {
   constructor() {
+    this.buildId = null;
+    this.success = null;
+    this.buildLog = null;
     this.isRegistered = false;
     this.pathToLocalRepo = path.resolve(__dirname, "localRepo");
 
@@ -68,20 +71,35 @@ class State {
     const buildLog = `${allOut} ${allErr}`;
 
     // TODO: maybe убрать buildId
-    await sendBuildOnServer(buildId, success, buildLog);
+    this.buildId = buildId;
+    this.success = success;
+    this.buildLog = buildLog;
+
+    await sendBuildOnServer();
   }
 
   // TODO: maybe убрать buildId
-  async sendBuildOnServer(buildId, success, buildLog) {
-    await axios.post(
-      `http://${config.serverHost}:${config.serverPort}/notify-build-result`,
-      {
-        buildId,
-        success,
-        buildLog,
-      }
-    );
+  async sendBuildOnServer() {
+    console.log("try to send build data on build server...");
+
+    try {
+      await axios.post(
+        `http://${config.serverHost}:${config.serverPort}/notify-build-result`,
+        {
+          buildId: this.buildId,
+          success: this.success,
+          buildLog: this.buildLog,
+        }
+      );
+
+      console.log("success send data!");
+    } catch (error) {
+      console.error(error);
+      setTimeout(sendBuildOnServer, 10000);
+    }
   }
 }
 
-module.exports = new State();
+// module.exports = new State();
+
+global.state = new State();

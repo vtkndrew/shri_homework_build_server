@@ -1,14 +1,18 @@
 const cors = require("cors");
 const express = require("express");
 const config = require("./server-conf.json");
-const state = require("./state");
+require("./state");
 const { getConf, getBuilds } = require("./api");
 
 getConf().then(async () => {
   const update = async () => {
+    console.log("try update builds, state: ", state);
+
     if (state.conf.repoName === null) return;
 
     const { full, short } = await getBuilds();
+
+    console.log("update builds: ", short.data);
 
     await state.updateBuilds(short.data);
 

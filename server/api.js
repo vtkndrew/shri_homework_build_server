@@ -2,7 +2,7 @@ const querystring = require("querystring");
 const https = require("https");
 const axios = require("axios").default;
 const config = require("./server-conf.json");
-const state = require("./state");
+require("./state");
 const { axiosGet, axiosPost } = require("./utils");
 
 const api = axios.create({
@@ -19,11 +19,12 @@ const api = axios.create({
 const getConf = async () => {
   const { full, short } = await axiosGet(api, "/conf");
   console.log("get config: ", short);
+  console.log("current state: ", short);
 
   const { data } = short;
 
   if (data) {
-    state.conf = data;
+    state.setConf(data);
   }
 };
 
